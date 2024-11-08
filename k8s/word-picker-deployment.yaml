@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: word-picker
+  labels:
+    app: word-picker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: word-picker
+  template:
+    metadata:
+      labels:
+        app: word-picker
+    spec:
+      containers:
+      - name: word-picker
+        image: tinmancoding/word-picker:v2.11
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5000
