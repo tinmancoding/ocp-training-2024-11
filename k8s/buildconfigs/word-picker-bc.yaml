@@ -1,0 +1,27 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: word-picker
+spec: {}
+---
+apiVersion:  build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: word-picker
+spec:
+  source:
+    type: Git
+    contextDir: "word-picker"
+    git:
+      uri: https://github.com/tinmancoding/ocp-training-2024-11.git
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: "Dockerfile"
+      from:
+        kind: ImageStreamTag
+        name: 'python:3.12'
+  output:
+    to:
+      kind: ImageStreamTag
+      name: "word-picker:latest"

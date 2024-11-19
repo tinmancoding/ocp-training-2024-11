@@ -1,0 +1,27 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: lazy-docker
+spec:
+  tags: []
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: lazy-docker
+spec:
+  source:
+    type: Dockerfile
+    dockerfile: |
+      FROM centos:latest
+      CMD echo 'Hello lazy World!' && exec sleep infinity
+  strategy:
+    type: Docker
+  output:
+    to:
+      kind: ImageStreamTag
+      name: "lazy-docker:latest"
+  triggers:
+    - type: generic
+      generic:
+        secret: testing
