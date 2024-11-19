@@ -1,0 +1,52 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: word-picker-template
+parameters:
+- name: APP_POSTFIX
+  description: This string is added to the end of the resource names
+  required: true
+- name: CUSTOM_OPTIONS
+  description: The words in this string are going to be the options for the application.
+  value: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+objects:
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    labels:
+      app: word-picker-${APP_POSTFIX}
+    name: word-picker-options-${APP_POSTFIX}
+  data:
+    custom_options.txt: ${CUSTOM_OPTIONS} 
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: word-picker-${APP_POSTFIX}
+    labels:
+      app: word-picker-${APP_POSTFIX}
+  spec:
+    replicas: 2
+    selector:
+      matchLabels:
+        app: word-picker-${APP_POSTFIX}
+    template:
+      metadata:
+        labels:
+          app: word-picker-${APP_POSTFIX}
+      spec:
+        containers:
+        - name: word-picker
+          image: tinmancoding/word-picker:v2.11
+          imagePullPolicy: Always
+          ports:
+          - containerPort: 5000
+          volumeMounts:
+          - name: options-config-map
+            mountPath: /code/config
+          env:
+          - name: OPTIONS_FILE
+            value: /code/config/custom_options.txt
+        volumes:
+        - name: options-config-map
+          configMap:
+            name: word-picker-options-${APP_POSTFIX}
