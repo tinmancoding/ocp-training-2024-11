@@ -14,12 +14,19 @@ parameters:
 - name: REPLICAS
   description: The replica count for the word-picker deployment
   value: "2"
+- name: CUSTOM_LABEL_NAME
+  description: The name of the custom label applied to all resources
+  value: "word-picker"
+- name: CUSTOM_LABEL_VALUE
+  description: The value of the custom label applied to all resources
+  value: "word-picker"
 objects:
 - apiVersion: v1
   kind: ConfigMap
   metadata:
     labels:
       app: word-picker-${APP_POSTFIX}
+      ${CUSTOM_LABEL_NAME}: ${CUSTOM_LABEL_VALUE}
     name: word-picker-options-${APP_POSTFIX}
   data:
     custom_options.txt: ${CUSTOM_OPTIONS} 
@@ -29,15 +36,18 @@ objects:
     name: word-picker-${APP_POSTFIX}
     labels:
       app: word-picker-${APP_POSTFIX}
+      ${CUSTOM_LABEL_NAME}: ${CUSTOM_LABEL_VALUE}
   spec:
     replicas: ${{REPLICAS}}
     selector:
       matchLabels:
         app: word-picker-${APP_POSTFIX}
+        ${CUSTOM_LABEL_NAME}: ${CUSTOM_LABEL_VALUE}
     template:
       metadata:
         labels:
           app: word-picker-${APP_POSTFIX}
+          ${CUSTOM_LABEL_NAME}: ${CUSTOM_LABEL_VALUE}
       spec:
         containers:
         - name: word-picker
@@ -55,3 +65,17 @@ objects:
         - name: options-config-map
           configMap:
             name: word-picker-options-${APP_POSTFIX}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: word-picker-${APP_POSTFIX}
+  spec:
+    type: ClusterIP
+    selector:
+      app: word-picker-${APP_POSTFIX}
+      ${CUSTOM_LABEL_NAME}: ${CUSTOM_LABEL_VALUE}
+    ports:
+    - port: 5000
+      protocol: TCP
+      targetPort: 5000
+
