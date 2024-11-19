@@ -1,6 +1,8 @@
 apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
+  annotations:
+    description: A Simple WordPicker application
   name: word-picker-template
 parameters:
 - name: APP_POSTFIX
@@ -9,6 +11,9 @@ parameters:
 - name: CUSTOM_OPTIONS
   description: The words in this string are going to be the options for the application.
   value: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+- name: REPLICAS
+  description: The replica count for the word-picker deployment
+  value: "2"
 objects:
 - apiVersion: v1
   kind: ConfigMap
@@ -25,7 +30,7 @@ objects:
     labels:
       app: word-picker-${APP_POSTFIX}
   spec:
-    replicas: 2
+    replicas: ${{REPLICAS}}
     selector:
       matchLabels:
         app: word-picker-${APP_POSTFIX}
